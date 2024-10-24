@@ -4,4 +4,4 @@ main = Blueprint("main", __name__)
 
 @main.route("/predict-image", method=["POST"])
 def predict_image():
-    return 0
+    pass
