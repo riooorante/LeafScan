@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 class Message:
     def __init__(self):
         self.message = {
-            "disiase": {},
+            "disease": {},
             "status_code": 0,
             "timestamp": self._get_current_timestamp()
         }
@@ -15,23 +15,23 @@ class Message:
     def _get_current_timestamp(self):
         return datetime.now().isoformat()
 
-    def add_disiase(self, key):
+    def add_disease(self, key):
         if not isinstance(key, str):
             raise ValueError("Disease key must be a string")
-        if key in self.message["disiase"]:
+        if key in self.message["disease"]:
             logging.warning(f"Disease '{key}' already exists, skipping.")
             return
 
-        self.message["disiase"][key] = {}
+        self.message["disease"][key] = {}
         logging.info(f"Disease '{key}' added successfully.")
 
     def add_section(self, name, section, content):
-        if name not in self.message["disiase"]:
+        if name not in self.message["disease"]:
             raise KeyError(f"Disease '{name}' does not exist. Add it first.")
         if not isinstance(section, str) or not isinstance(content, str):
             raise ValueError("Section and content must be strings")
 
-        self.message["disiase"][name][section] = content
+        self.message["disease"][name][section] = content
         logging.info(f"Section '{section}' added to disease '{name}'.")
 
     def set_status_code(self, status_code):
@@ -46,7 +46,7 @@ class Message:
 
     def to_json(self):
         try:
-            return json.dumps(self.message)
+            return json.dumps(self.get_message)
         except TypeError as e:
             logging.error("Error serializing message to JSON: ", exc_info=True)
             raise ValueError(f"Serialization error: {str(e)}")
@@ -54,7 +54,7 @@ class Message:
     def from_json(self, json_str):
         try:
             parsed_message = json.loads(json_str)
-            if "disiase" in parsed_message and "status_code" in parsed_message:
+            if "disease" in parsed_message and "status_code" in parsed_message:
                 self.message = parsed_message
                 logging.info("Message loaded from JSON successfully.")
             else:

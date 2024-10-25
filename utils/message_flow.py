@@ -1,25 +1,47 @@
-from llm import create_text
+import multiprocessing
+from llm.text_generation import TextGeneration
 from utils.create_message import Message
 
-message = Message()
+class Flow:
+    def __init__(self):
+        self.message = Message()
+        self.lock = multiprocessing.Lock()  
+    def create_content(self, disease: str, section: str):
+        text_generation = TextGeneration()
 
-def message_flow(prediction: list):
-    sections = [""]
+        try:
+            content = text_generation.generate_text(disease, section)
 
-    for disiase in prediction:
-        message.add_disiase(disiase)
+            with self.lock:
+                if disease not in self.message.get_message()["disease"].keys():
+                    self.message.add_disease(disease)
+                self.message.add_section(disease, section, content)
+
+            return True 
+        except Exception as e:
+            with self.lock:
+                self.message.set_status_code(500)
+            return False  
+
+    def _process_prediction(self, prediction, sections):
         for section in sections:
+            if not self.create_content(prediction, section):
+                return False
+        return True
 
-            content = create_text(disiase, section)
+    def result_flow(self, predictions: list):
+        sections = ["Penjelasan Dasar"]
 
-            message.add_section(disiase, section, content)
+        try:
+            with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+                results = pool.starmap(self._process_prediction, [(prediction, sections) for prediction in predictions])
 
-    message.to_json()
+            if all(results):
+                self.message.set_status_code(200)  
+            else:
+                self.message.set_status_code(500) 
 
-    return message.get_message()
+        except Exception as e:
+            self.message.set_status_code(500)
 
-
-
-
-
-
+        return self.message.get_message()
