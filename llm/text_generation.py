@@ -1,5 +1,5 @@
 # app/llm/gpt-recommendation.py
-
+import logging
 from . import client
 
 class TextGeneration:
@@ -13,16 +13,20 @@ class TextGeneration:
 
 
     def generate_text(self, disease, section):
-        prompt = self.prompt_user.format(disease, section)
+        try:
 
-        completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": self.prompt_system},
-                {"role": "user", "content": prompt}
-            ],
-            max_tokens=154,
-        )
+            # prompt = self.prompt_user.format(disease, section)
+            #
+            # completion = client.chat.completions.create(
+            #     model="gpt-3.5-turbo",
+            #     messages=[
+            #         {"role": "system", "content": self.prompt_system},
+            #         {"role": "user", "content": prompt}
+            #     ],
+            #     max_tokens=154,
+            # )
 
-        response_text = completion['choices'][0]['message']['content']
-        return response_text
+            # response_text = completion['choices'][0]['message']['content']
+            return f"Testing Text Generation module {disease}, {section}"
+        except Exception as e:
+            logging.info(e)

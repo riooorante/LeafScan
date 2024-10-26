@@ -34,12 +34,12 @@ class Message:
         self.message["disease"][name][section] = content
         logging.info(f"Section '{section}' added to disease '{name}'.")
 
-    def set_status_code(self, status_code):
+    def set_status_code(self, status_code, posisi="Undefined"):
         if not isinstance(status_code, int):
             raise ValueError("Status code must be an integer")
 
         self.message['status_code'] = status_code
-        logging.info(f"Status code set to {status_code}.")
+        logging.info(f"Status code set to {status_code}. {posisi}")
 
     def get_message(self):
         return self.message

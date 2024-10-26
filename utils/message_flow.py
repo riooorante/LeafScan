@@ -1,3 +1,4 @@
+import logging
 import multiprocessing
 from llm.text_generation import TextGeneration
 from utils.create_message import Message
@@ -5,43 +6,52 @@ from utils.create_message import Message
 class Flow:
     def __init__(self):
         self.message = Message()
-        self.lock = multiprocessing.Lock()  
-    def create_content(self, disease: str, section: str):
-        text_generation = TextGeneration()
+        self.text_generation = TextGeneration()
 
+    def create_content(self, disease: str, section: str, lock: multiprocessing.Lock):
         try:
-            content = text_generation.generate_text(disease, section)
+            # Menghasilkan teks menggunakan model LLM
+            content = self.text_generation.generate_text(disease, section)
 
-            with self.lock:
+            with lock:
+                # Menambahkan penyakit dan konten yang dihasilkan
                 if disease not in self.message.get_message()["disease"].keys():
                     self.message.add_disease(disease)
                 self.message.add_section(disease, section, content)
 
-            return True 
+            return True
         except Exception as e:
-            with self.lock:
+            logging.error(f"Error while creating content for disease '{disease}': {e}", exc_info=True)
+            with lock:
                 self.message.set_status_code(500)
-            return False  
+            return False
 
     def _process_prediction(self, prediction, sections):
+        lock = multiprocessing.Lock()  # Create a new lock for each process
         for section in sections:
-            if not self.create_content(prediction, section):
+            if not self.create_content(prediction, section, lock):
                 return False
         return True
 
     def result_flow(self, predictions: list):
-        sections = ["Penjelasan Dasar"]
+        sections = ["Diagnosa"]
 
         try:
             with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-                results = pool.starmap(self._process_prediction, [(prediction, sections) for prediction in predictions])
+                # Menjalankan proses secara paralel
+                results = pool.map(self._process_prediction, predictions)
+
+            logging.info("Results from predictions: %s", results)
 
             if all(results):
-                self.message.set_status_code(200)  
+                logging.info("All predictions processed successfully.")
+                self.message.set_status_code(200)
             else:
-                self.message.set_status_code(500) 
+                logging.warning("Some predictions failed.")
+                self.message.set_status_code(500, "flow else")
 
         except Exception as e:
-            self.message.set_status_code(500)
+            logging.error("An error occurred in result_flow: %s", e, exc_info=True)
+            self.message.set_status_code(500, "An error occurred in result_flow")
 
         return self.message.get_message()
