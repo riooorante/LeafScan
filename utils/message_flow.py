@@ -34,12 +34,12 @@ class Flow:
         return True
 
     def result_flow(self, predictions: list):
-        sections = ["Diagnosa"]
+        sections = ["Diagnosa", "Saran"]
 
         try:
             with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
-                # Menjalankan proses secara paralel
-                results = pool.map(self._process_prediction, predictions)
+                # Use starmap to unpack both arguments
+                results = pool.starmap(self._process_prediction, [(prediction, sections) for prediction in predictions])
 
             logging.info("Results from predictions: %s", results)
 
@@ -50,8 +50,11 @@ class Flow:
                 logging.warning("Some predictions failed.")
                 self.message.set_status_code(500, "flow else")
 
+            logging.info(self.message.get_message())
+            return self.message.get_message()
+
         except Exception as e:
             logging.error("An error occurred in result_flow: %s", e, exc_info=True)
             self.message.set_status_code(500, "An error occurred in result_flow")
 
-        return self.message.get_message()
+

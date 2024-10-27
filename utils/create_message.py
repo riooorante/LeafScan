@@ -25,14 +25,14 @@ class Message:
         self.message["disease"][key] = {}
         logging.info(f"Disease '{key}' added successfully.")
 
-    def add_section(self, name, section, content):
-        if name not in self.message["disease"]:
-            raise KeyError(f"Disease '{name}' does not exist. Add it first.")
+    def add_section(self, key, section, content):
+        if key not in self.message["disease"]:
+            raise KeyError(f"Disease '{key}' does not exist. Add it first.")
         if not isinstance(section, str) or not isinstance(content, str):
             raise ValueError("Section and content must be strings")
-
-        self.message["disease"][name][section] = content
-        logging.info(f"Section '{section}' added to disease '{name}'.")
+        self.message["disease"][key][section] = content
+        logging.info(f"Section '{section}' added to disease '{key}'.")
+        logging.info(f"{self.get_message()['disease'][key]}")
 
     def set_status_code(self, status_code, posisi="Undefined"):
         if not isinstance(status_code, int):

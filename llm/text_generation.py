@@ -27,6 +27,7 @@ class TextGeneration:
             # )
 
             # response_text = completion['choices'][0]['message']['content']
+            logging.info("Success for create the text!")
             return f"Testing Text Generation module {disease}, {section}"
         except Exception as e:
             logging.info(e)
