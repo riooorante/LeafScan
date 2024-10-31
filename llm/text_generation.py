@@ -31,3 +31,4 @@ class TextGeneration:
             return f"Testing Text Generation module {disease}, {section}"
         except Exception as e:
             logging.info(e)
+

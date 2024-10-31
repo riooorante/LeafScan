@@ -11,7 +11,6 @@ class Message:
             "status_code": 0,
             "timestamp": self._get_current_timestamp()
         }
-
     def _get_current_timestamp(self):
         return datetime.now().isoformat()
 
