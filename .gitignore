@@ -1,0 +1,28 @@
+# Virtual environments
+venv/
+.env/
+pyvenv.cfg
+
+# Python bytecode and cache files
+__pycache__/
+*.py[cod]
+
+# Editor-specific directories
+.idea/
+.vscode/
+
+# OS generated files (optional, depending on OS)
+.DS_Store  # macOS
+Thumbs.db  # Windows
+
+# Log files
+*.log
+
+# Sensitive files
+.env
+
+# Python packages (Windows environment)
+Lib/
+Scripts/
+
+share/
